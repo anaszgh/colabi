@@ -3,6 +3,7 @@ import { Account, Platform, AccountStatus } from '../entities/account.entity';
 import { User } from '../entities/user.entity';
 import { AppDataSource } from '../config/database';
 import { LinkedInService } from './linkedin.service';
+import { InstagramService } from './instagram.service';
 
 export interface CreateAccountData {
   userId: string;
@@ -47,11 +48,13 @@ export class AccountService {
   private accountRepository: Repository<Account>;
   private userRepository: Repository<User>;
   private linkedInService: LinkedInService;
+  private instagramService: InstagramService;
 
   constructor() {
     this.accountRepository = AppDataSource.getRepository(Account);
     this.userRepository = AppDataSource.getRepository(User);
     this.linkedInService = new LinkedInService();
+    this.instagramService = new InstagramService();
   }
 
   /**
@@ -247,6 +250,18 @@ export class AccountService {
       }
     }
 
+    // For Instagram, use the specialized service
+    if (platform === Platform.INSTAGRAM) {
+      try {
+        // Decode the state to extract userId
+        const stateData = JSON.parse(Buffer.from(state, 'base64').toString());
+        return this.instagramService.generateAuthUrl(stateData.userId);
+      } catch (error) {
+        console.error('Error decoding state for Instagram OAuth:', error);
+        throw new Error('Invalid state parameter for Instagram OAuth');
+      }
+    }
+
     const config = this.getPlatformOAuthConfig(platform);
     
     if (!config.clientId) {
@@ -300,6 +315,49 @@ export class AccountService {
     } catch (error) {
       console.error('Error handling LinkedIn OAuth:', error);
       throw new Error('Failed to connect LinkedIn account');
+    }
+  }
+
+  /**
+   * Handle Instagram OAuth callback and create account
+   */
+  async handleInstagramOAuth(code: string, state: string): Promise<Account> {
+    try {
+      // Exchange code for token using Instagram service
+      const tokenData = await this.instagramService.exchangeCodeForToken(code, state);
+      console.log('Instagram tokenData', tokenData);
+      
+      // Get profile information
+      const profile = await this.instagramService.getUserProfile(tokenData.accessToken);
+      console.log('Instagram profile', profile);
+      
+      // Create account data
+      const accountData: CreateAccountData = {
+        userId: tokenData.userId,
+        platform: Platform.INSTAGRAM,
+        platformId: profile.id,
+        username: profile.username,
+        displayName: profile.username,
+        avatar: profile.profilePictureUrl,
+        bio: profile.biography,
+        followersCount: profile.followersCount,
+        followingCount: profile.followsCount,
+        accessToken: tokenData.accessToken,
+        tokenExpiresAt: new Date(Date.now() + ((tokenData.expiresIn || 5184000) * 1000)) // 60 days default
+      };
+
+      // Create the account
+      const account = await this.createAccount(accountData);
+      
+      // Start initial sync of account data
+      this.instagramService.syncAccountData(account.id).catch(error => {
+        console.error('Failed to sync Instagram account after creation:', error);
+      });
+
+      return account;
+    } catch (error) {
+      console.error('Error handling Instagram OAuth:', error);
+      throw new Error('Failed to connect Instagram account');
     }
   }
 

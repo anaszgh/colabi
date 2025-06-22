@@ -287,25 +287,30 @@ export class AccountController {
         return;
       }
 
-      // TODO: Exchange code for access token
-      // This would involve calling the platform's token endpoint
-      // For now, we'll create a mock account
+      // Handle platform-specific OAuth flows
+      try {
+        let account;
+        
+        switch (platform) {
+          case Platform.LINKEDIN:
+            account = await this.accountService.handleLinkedInOAuth(code as string, state as string);
+            break;
+          case Platform.INSTAGRAM:
+            account = await this.accountService.handleInstagramOAuth(code as string, state as string);
+            break;
+          default:
+            res.redirect(`/accounts?error=OAuth not implemented for ${platform}`);
+            return;
+        }
 
-      const mockAccountData = {
-        userId: stateData.userId,
-        platform: platform as Platform,
-        platformId: `mock_${Date.now()}`,
-        username: `mock_user_${platform}`,
-        displayName: `Mock ${platform} Account`,
-        accessToken: 'mock_access_token',
-        // In real implementation, these would come from the OAuth response
-      };
-
-      // TODO: Replace this with actual OAuth token exchange
-      console.log('OAuth callback received:', { platform, code, stateData });
-      console.log('Would create account with:', mockAccountData);
-
-      res.redirect('/accounts?success=Account connected successfully');
+        console.log(`${platform} OAuth successful:`, { accountId: account.id, username: account.username });
+        res.redirect('/accounts?success=Account connected successfully');
+        
+      } catch (oauthError: any) {
+        console.error(`${platform} OAuth error:`, oauthError);
+        res.redirect(`/accounts?error=${encodeURIComponent(oauthError.message || 'Failed to connect account')}`);
+        return;
+      }
 
     } catch (error: any) {
       console.error('OAuth callback error:', error);

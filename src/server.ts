@@ -13,6 +13,7 @@ import dashboardRoutes from './routes/dashboard.routes';
 import accountRoutes from './routes/account.routes';
 import oauthRoutes from './routes/oauth.routes';
 import linkedinRoutes from './routes/linkedin.routes';
+import instagramRoutes from './routes/instagram.routes';
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +53,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/auth', oauthRoutes);
 app.use('/user', dashboardRoutes);
 app.use('/linkedin', linkedinRoutes);
+app.use('/instagram', instagramRoutes);
 
 // UI Routes
 app.get('/', (req: Request, res: Response) => {
