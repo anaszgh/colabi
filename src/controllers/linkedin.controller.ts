@@ -69,7 +69,7 @@ export class LinkedInController {
   async handleOAuthCallback(req: Request, res: Response): Promise<void> {
     try {
       const { code, state, error, error_description } = req.query;
-
+      
       // Handle OAuth error
       if (error) {
         console.error('LinkedIn OAuth error:', error, error_description);

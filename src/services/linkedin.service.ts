@@ -5,6 +5,27 @@ import { Message, MessageType, MessageStatus, MessagePriority } from '../entitie
 import { User } from '../entities/user.entity';
 import crypto from 'crypto';
 
+/**
+ * LinkedIn Service
+ * 
+ * This service handles LinkedIn OAuth integration using the current OpenID Connect flow.
+ * 
+ * IMPORTANT NOTES:
+ * - As of August 1, 2023, LinkedIn deprecated r_liteprofile and r_emailaddress scopes
+ * - New LinkedIn apps must use OpenID Connect with 'openid', 'profile', 'email' scopes
+ * - LinkedIn messaging APIs require Partnership access and are not available for standard apps
+ * - Only basic profile information is available through the userinfo endpoint
+ * 
+ * Available features:
+ * - OAuth authentication with LinkedIn
+ * - Basic profile information (name, email, profile picture)
+ * 
+ * Unavailable features (require Partnership):
+ * - Messaging/conversation APIs
+ * - Advanced profile data (headline, location, industry)
+ * - Connection data
+ */
+
 export interface LinkedInProfile {
   id: string;
   firstName: string;
@@ -84,8 +105,9 @@ export class LinkedInService {
       redirectUri: process.env.LINKEDIN_REDIRECT_URI || '',
       scope: [
         'r_liteprofile',
-        'rw_conversions',
-        'r_ads'
+        'openid',
+        'profile',
+        'email'
       ]
     };
 
@@ -186,8 +208,8 @@ export class LinkedInService {
    */
   async getUserProfile(accessToken: string): Promise<LinkedInProfile> {
     try {
-      // Get basic profile
-      const profileResponse = await fetch(`${this.baseUrl}/people/~:(id,firstName,lastName,headline,location,industry,profilePicture(displayImage~:playableStreams))`, {
+      // Use the new OpenID Connect userinfo endpoint
+      const profileResponse = await fetch(`${this.baseUrl}/userinfo`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
           'Accept': 'application/json'
@@ -195,39 +217,24 @@ export class LinkedInService {
       });
 
       if (!profileResponse.ok) {
+        const errorText = await profileResponse.text();
+        console.error('LinkedIn API Error Response:', errorText);
         throw new Error(`LinkedIn API error: ${profileResponse.status}`);
       }
 
       const profileData = await profileResponse.json() as any;
-
-      // Get email separately (requires additional permission)
-      let emailAddress;
-      try {
-        const emailResponse = await fetch(`${this.baseUrl}/emailAddress?q=members&projection=(elements*(handle~))`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'application/json'
-          }
-        });
-
-        if (emailResponse.ok) {
-          const emailData = await emailResponse.json() as any;
-          emailAddress = emailData.elements?.[0]?.['handle~']?.emailAddress;
-        }
-      } catch (error) {
-        console.warn('Could not fetch LinkedIn email address:', error);
-      }
+      console.log('LinkedIn Profile Data:', profileData);
 
       return {
-        id: profileData.id,
-        firstName: profileData.firstName?.localized?.en_US || profileData.firstName?.preferredLocale?.language || '',
-        lastName: profileData.lastName?.localized?.en_US || profileData.lastName?.preferredLocale?.language || '',
-        headline: profileData.headline?.localized?.en_US,
-        location: profileData.location?.name,
-        industry: profileData.industry,
-        profilePictureUrl: profileData.profilePicture?.displayImage?.elements?.[0]?.identifiers?.[0]?.identifier,
-        publicProfileUrl: `https://linkedin.com/in/${profileData.id}`,
-        emailAddress
+        id: profileData.sub, // 'sub' is the user ID in OpenID Connect
+        firstName: profileData.given_name || '',
+        lastName: profileData.family_name || '',
+        headline: '', // Not available in OpenID Connect userinfo
+        location: '', // Not available in OpenID Connect userinfo
+        industry: '', // Not available in OpenID Connect userinfo
+        profilePictureUrl: profileData.picture,
+        publicProfileUrl: `https://linkedin.com/in/${profileData.sub}`,
+        emailAddress: profileData.email
       };
     } catch (error) {
       console.error('Error fetching LinkedIn profile:', error);
@@ -237,99 +244,35 @@ export class LinkedInService {
 
   /**
    * Fetch conversations for a LinkedIn account
+   * Note: Messaging APIs require LinkedIn Partnership for access
    */
   async getConversations(accessToken: string, limit: number = 20): Promise<LinkedInConversation[]> {
-    try {
-      // Note: This endpoint requires LinkedIn Partnership for full access
-      // For now, we'll implement the structure for when access is available
-      const response = await fetch(`${this.baseUrl}/conversations?limit=${limit}`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        if (response.status === 403) {
-          console.warn('LinkedIn conversations endpoint requires partnership access');
-          return [];
-        }
-        throw new Error(`LinkedIn API error: ${response.status}`);
-      }
-
-      const data = await response.json() as any;
-      
-      return data.elements?.map((conv: any) => ({
-        id: conv.id,
-        participants: conv.participants?.map((p: any) => ({
-          id: p.id,
-          name: `${p.firstName?.localized?.en_US || ''} ${p.lastName?.localized?.en_US || ''}`.trim(),
-          profileUrl: p.publicProfileUrl
-        })) || [],
-        lastMessage: conv.lastMessage ? this.mapLinkedInMessage(conv.lastMessage) : undefined,
-        unreadCount: conv.unreadCount || 0,
-        updatedAt: new Date(conv.lastActivityAt)
-      })) || [];
-    } catch (error) {
-      console.error('Error fetching LinkedIn conversations:', error);
-      return [];
-    }
+    // LinkedIn messaging APIs require partnership access
+    // Most standard applications do not have access to these endpoints
+    console.warn('LinkedIn conversations API requires partnership access and is not available for standard applications');
+    return [];
   }
 
   /**
    * Fetch messages from a specific conversation
+   * Note: Messaging APIs require LinkedIn Partnership for access
    */
   async getMessages(accessToken: string, conversationId: string, limit: number = 50): Promise<LinkedInMessage[]> {
-    try {
-      const response = await fetch(`${this.baseUrl}/conversations/${conversationId}/messages?limit=${limit}`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        if (response.status === 403) {
-          console.warn('LinkedIn messages endpoint requires partnership access');
-          return [];
-        }
-        throw new Error(`LinkedIn API error: ${response.status}`);
-      }
-
-      const data = await response.json() as any;
-      
-      return data.elements?.map((msg: any) => this.mapLinkedInMessage(msg)) || [];
-    } catch (error) {
-      console.error('Error fetching LinkedIn messages:', error);
-      return [];
-    }
+    // LinkedIn messaging APIs require partnership access
+    // Most standard applications do not have access to these endpoints
+    console.warn('LinkedIn messages API requires partnership access and is not available for standard applications');
+    return [];
   }
 
   /**
    * Send a message via LinkedIn
+   * Note: Messaging APIs require LinkedIn Partnership for access
    */
   async sendMessage(accessToken: string, recipientId: string, content: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.baseUrl}/messages`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          recipients: [recipientId],
-          message: {
-            body: content
-          }
-        })
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error('Error sending LinkedIn message:', error);
-      return false;
-    }
+    // LinkedIn messaging APIs require partnership access
+    // Most standard applications do not have access to these endpoints
+    console.warn('LinkedIn messaging API requires partnership access and is not available for standard applications');
+    return false;
   }
 
   /**

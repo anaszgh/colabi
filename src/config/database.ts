@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Account } from '../entities/account.entity';
@@ -16,7 +17,7 @@ export const AppDataSource = new DataSource({
   entities: [User, Account, Message, Template],
   migrations: ['src/migrations/*.ts'],
   subscribers: ['src/subscribers/*.ts'],
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.DB_HOST?.includes('azure.com') ? { rejectUnauthorized: false } : false,
 });
 
 export const connectDatabase = async (): Promise<void> => {

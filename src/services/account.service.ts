@@ -271,10 +271,10 @@ export class AccountService {
     try {
       // Exchange code for token using LinkedIn service
       const tokenData = await this.linkedInService.exchangeCodeForToken(code, state);
-      
+      console.log('tokenData', tokenData);
       // Get profile information
       const profile = await this.linkedInService.getUserProfile(tokenData.accessToken);
-      
+      console.log('profile', profile);
       // Create account data
       const accountData: CreateAccountData = {
         userId: tokenData.userId,

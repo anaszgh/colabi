@@ -156,6 +156,14 @@
     </div>
 
     <script>
+        const platforms = {
+            instagram: 'Instagram',
+            tiktok: 'TikTok',
+            youtube: 'YouTube',
+            twitter: 'Twitter',
+            facebook: 'Facebook',
+            linkedin: 'LinkedIn'
+        };
         // Global state
         let accounts = [];
 
@@ -226,7 +234,7 @@
                             <div class="platform-icon ${account.platform}">
                                 ${getPlatformIcon(account.platform)}
                             </div>
-                            <span class="platform-name">${account.platformDisplayName}</span>
+                            <span class="platform-name">${platforms[account.platform]}</span>
                         </div>
                         <div class="account-status ${account.status}">
                             ${getStatusIcon(account.status)}
