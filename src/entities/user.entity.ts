@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Account } from './account.entity';
 import { Template } from './template.entity';
+import { Agent } from './agent.entity';
 
 export enum UserRole {
   INFLUENCER = 'influencer',
@@ -106,6 +107,9 @@ export class User {
 
   @OneToMany(() => Template, template => template.user)
   templates: Template[];
+
+  @OneToMany(() => Agent, agent => agent.user)
+  agents: Agent[];
 
   // Computed properties
   get isInfluencer(): boolean {

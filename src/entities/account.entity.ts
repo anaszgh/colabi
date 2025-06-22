@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Message } from './message.entity';
+import { Agent } from './agent.entity';
 
 export enum Platform {
   INSTAGRAM = 'instagram',
@@ -108,6 +109,9 @@ export class Account {
 
   @OneToMany(() => Message, message => message.account)
   messages: Message[];
+
+  @OneToMany(() => Agent, agent => agent.assignedAccount)
+  assignedAgents?: Agent[];
 
   // Computed properties
   get isActive(): boolean {

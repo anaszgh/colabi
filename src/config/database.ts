@@ -4,6 +4,8 @@ import { User } from '../entities/user.entity';
 import { Account } from '../entities/account.entity';
 import { Message } from '../entities/message.entity';
 import { Template } from '../entities/template.entity';
+import { Agent } from '../entities/agent.entity';
+import { TrainingSession } from '../entities/training-session.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -14,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: false,
   logging: false, //process.env.NODE_ENV === 'development',
-  entities: [User, Account, Message, Template],
+  entities: [User, Account, Message, Template, Agent, TrainingSession],
   migrations: ['src/migrations/*.ts'],
   subscribers: ['src/subscribers/*.ts'],
   ssl: process.env.DB_HOST?.includes('azure.com') ? { rejectUnauthorized: false } : false,

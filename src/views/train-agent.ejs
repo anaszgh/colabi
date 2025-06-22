@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: 600px;
+            overflow-y: auto;
+        }
+        .message-bubble {
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .loading-dots {
+            display: inline-block;
+        }
+        .loading-dots:after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-blue-600">Colabi</h1>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="/dashboard" class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                        <a href="/accounts" class="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Accounts</a>
+                        <a href="/train-agent" class="bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium">Train your Agent</a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-gray-700">Hello, <%= user.name %></span>
+                        <button onclick="logout()" class="ml-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="px-4 py-6 sm:px-0">
+            <h1 class="text-3xl font-bold text-gray-900">Train your AI Agent</h1>
+            <p class="mt-2 text-gray-600">Create and train AI agents to handle your social media messages with your unique communication style.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Agents List -->
+            <div class="lg:col-span-1">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Your Agents</h3>
+                            <button onclick="showCreateAgentModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i>
+                                Create Agent
+                            </button>
+                        </div>
+                        
+                        <div id="agents-list" class="space-y-3">
+                            <div class="text-center text-gray-500 py-4">
+                                <p>Loading agents...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Chat Interface -->
+            <div class="lg:col-span-2">
+                <div id="no-agent-selected" class="bg-white shadow rounded-lg p-8 text-center">
+                    <i data-lucide="bot" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">Select an Agent to Start Training</h3>
+                    <p class="text-gray-600">Choose an agent from the list or create a new one to begin training.</p>
+                </div>
+
+                <div id="training-interface" class="bg-white shadow rounded-lg hidden">
+                    <div class="px-4 py-5 sm:p-6">
+                        <!-- Agent Header -->
+                        <div id="agent-header" class="flex justify-between items-center mb-4 border-b pb-4">
+                            <!-- Agent info will be populated here -->
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div id="chat-messages" class="chat-container border rounded-lg p-4 mb-4 bg-gray-50">
+                            <!-- Messages will appear here -->
+                        </div>
+
+                        <!-- Message Input -->
+                        <div class="flex space-x-4">
+                            <input type="text" id="message-input" placeholder="Type your message..." 
+                                   class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button onclick="sendMessage()" id="send-button" 
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Training Actions -->
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t">
+                            <div class="flex space-x-2">
+                                <button onclick="completeTraining()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                    Complete Training
+                                </button>
+                                <button onclick="generateSystemPrompt()" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded text-sm">
+                                    Generate System Prompt
+                                </button>
+                            </div>
+                            <div id="training-progress" class="text-sm text-gray-600">
+                                <!-- Progress info will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Agent Modal -->
+    <div id="create-agent-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Agent</h3>
+                <form id="create-agent-form">
+                    <div class="mb-4">
+                        <label for="agent-name" class="block text-sm font-medium text-gray-700 mb-2">Agent Name</label>
+                        <input type="text" id="agent-name" name="name" required 
+                               placeholder="e.g., Sarah, Mike, Alex..."
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="agent-description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="agent-description" name="description" required 
+                               placeholder="e.g., Instagram manager, Facebook agent..."
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" onclick="hideCreateAgentModal()" 
+                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Create Agent
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+        let currentAgent = null;
+        let currentSession = null;
+        let isLoading = false;
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Check authentication and load agents on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthentication();
+            loadAgents();
+        });
+
+        // Check if user is authenticated
+        function checkAuthentication() {
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                // No token found, redirect to login
+                window.location.href = '/login';
+                return;
+            }
+        }
+
+        // Load user's agents
+        async function loadAgents() {
+            try {
+                const response = await fetch('/api/agents', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayAgents(data.data);
+                } else {
+                    console.error('Failed to load agents');
+                }
+            } catch (error) {
+                console.error('Error loading agents:', error);
+            }
+        }
+
+        // Display agents in the sidebar
+        function displayAgents(agents) {
+            const agentsList = document.getElementById('agents-list');
+            
+            if (agents.length === 0) {
+                agentsList.innerHTML = `
+                    <div class="text-center text-gray-500 py-4">
+                        <i data-lucide="bot" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p>No agents created yet</p>
+                    </div>
+                `;
+            } else {
+                agentsList.innerHTML = agents.map(agent => `
+                    <div class="border rounded-lg p-3 cursor-pointer hover:bg-gray-50 ${currentAgent?.id === agent.id ? 'bg-blue-50 border-blue-200' : ''}" 
+                         onclick="selectAgent('${agent.id}')">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-medium text-gray-900">${agent.name}</h4>
+                                <p class="text-sm text-gray-600">${agent.description}</p>
+                                <div class="flex items-center mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        ${agent.status === 'active' ? 'bg-green-100 text-green-800' : 
+                                          agent.status === 'training' ? 'bg-yellow-100 text-yellow-800' : 
+                                          'bg-gray-100 text-gray-800'}">
+                                        ${agent.status}
+                                    </span>
+                                    <span class="ml-2 text-xs text-gray-500">
+                                        ${Math.round(agent.trainingProgress || 0)}% trained
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            lucide.createIcons();
+        }
+
+        // Select an agent for training
+        async function selectAgent(agentId) {
+            try {
+                const response = await fetch(`/api/agents/${agentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentAgent = data.data;
+                    await startTrainingSession();
+                    showTrainingInterface();
+                } else {
+                    console.error('Failed to load agent');
+                }
+            } catch (error) {
+                console.error('Error loading agent:', error);
+            }
+        }
+
+        // Start a new training session
+        async function startTrainingSession() {
+            try {
+                const response = await fetch(`/api/agents/${currentAgent.id}/training-sessions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    },
+                    body: JSON.stringify({
+                        title: `Training Session ${new Date().toLocaleDateString()}`
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentSession = data.data;
+                    loadChatMessages();
+                } else {
+                    console.error('Failed to start training session');
+                }
+            } catch (error) {
+                console.error('Error starting training session:', error);
+            }
+        }
+
+        // Show training interface
+        function showTrainingInterface() {
+            document.getElementById('no-agent-selected').classList.add('hidden');
+            document.getElementById('training-interface').classList.remove('hidden');
+            
+            // Update agent header
+            const agentHeader = document.getElementById('agent-header');
+            agentHeader.innerHTML = `
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">${currentAgent.name}</h3>
+                    <p class="text-sm text-gray-600">${currentAgent.description}</p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        ${currentAgent.status === 'active' ? 'bg-green-100 text-green-800' : 
+                          currentAgent.status === 'training' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-gray-100 text-gray-800'}">
+                        ${currentAgent.status}
+                    </span>
+                    <div class="text-xs text-gray-500 mt-1">
+                        ${Math.round(currentAgent.trainingProgress || 0)}% trained
+                    </div>
+                </div>
+            `;
+            
+            // Update training progress
+            updateTrainingProgress();
+            
+            // Focus on message input
+            document.getElementById('message-input').focus();
+        }
+
+        // Load chat messages
+        function loadChatMessages() {
+            const chatMessages = document.getElementById('chat-messages');
+            
+            if (!currentSession || !currentSession.messages || currentSession.messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <i data-lucide="message-circle" class="w-8 h-8 mx-auto mb-2"></i>
+                        <p>Start the conversation with your agent!</p>
+                        <p class="text-sm mt-1">Ask questions to help your agent learn your communication style.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            chatMessages.innerHTML = currentSession.messages.map(message => {
+                const isUser = message.role === 'user';
+                return `
+                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4">
+                        <div class="message-bubble ${isUser ? 'bg-blue-500 text-white' : 'bg-white border'} rounded-lg px-4 py-2">
+                            <div class="text-sm font-medium mb-1 ${isUser ? 'text-blue-100' : 'text-gray-600'}">
+                                ${isUser ? 'You' : currentAgent.name}
+                            </div>
+                            <div class="text-sm">${message.content}</div>
+                            <div class="text-xs ${isUser ? 'text-blue-200' : 'text-gray-400'} mt-1">
+                                ${new Date(message.timestamp).toLocaleTimeString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Send a message
+        async function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            
+            if (!message || !currentSession || isLoading) return;
+
+            isLoading = true;
+            messageInput.value = '';
+            
+            // Disable send button
+            const sendButton = document.getElementById('send-button');
+            sendButton.disabled = true;
+            sendButton.innerHTML = '<span class="loading-dots">Sending</span>';
+
+            try {
+                const response = await fetch(`/api/agents/training-sessions/${currentSession.id}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    },
+                    body: JSON.stringify({ content: message })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Add messages to current session
+                    currentSession.messages.push(data.data.userMessage);
+                    currentSession.messages.push(data.data.agentResponse);
+                    
+                    // Update chat display
+                    loadChatMessages();
+                    
+                    // Update training progress
+                    updateTrainingProgress();
+                } else {
+                    console.error('Failed to send message');
+                    alert('Failed to send message. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Error sending message. Please try again.');
+            } finally {
+                isLoading = false;
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i>';
+                lucide.createIcons();
+                messageInput.focus();
+            }
+        }
+
+        // Update training progress display
+        function updateTrainingProgress() {
+            const progressDiv = document.getElementById('training-progress');
+            const messageCount = currentSession?.messages?.length || 0;
+            const userMessageCount = currentSession?.messages?.filter(m => m.role === 'user').length || 0;
+            
+            progressDiv.innerHTML = `
+                <div>Messages: ${messageCount}</div>
+                <div>Your responses: ${userMessageCount}</div>
+                <div>Progress: ${Math.round(currentAgent?.trainingProgress || 0)}%</div>
+            `;
+        }
+
+        // Handle Enter key in message input
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('message-input');
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        // Show create agent modal
+        function showCreateAgentModal() {
+            document.getElementById('create-agent-modal').classList.remove('hidden');
+        }
+
+        // Hide create agent modal
+        function hideCreateAgentModal() {
+            document.getElementById('create-agent-modal').classList.add('hidden');
+            document.getElementById('create-agent-form').reset();
+        }
+
+        // Handle create agent form submission
+        document.getElementById('create-agent-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const agentData = {
+                name: formData.get('name'),
+                description: formData.get('description')
+            };
+
+            try {
+                const response = await fetch('/api/agents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    },
+                    body: JSON.stringify(agentData)
+                });
+                
+                if (response.ok) {
+                    hideCreateAgentModal();
+                    loadAgents();
+                    alert('Agent created successfully!');
+                } else {
+                    const error = await response.json();
+                    alert(`Failed to create agent: ${error.message}`);
+                }
+            } catch (error) {
+                console.error('Error creating agent:', error);
+                alert('Error creating agent. Please try again.');
+            }
+        });
+
+        // Complete training session
+        async function completeTraining() {
+            if (!currentSession) return;
+
+            if (confirm('Are you sure you want to complete this training session?')) {
+                try {
+                    const response = await fetch(`/api/agents/training-sessions/${currentSession.id}/complete`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('Training session completed successfully!');
+                        loadAgents(); // Refresh agents list
+                        
+                        // Start a new session
+                        await startTrainingSession();
+                        loadChatMessages();
+                    } else {
+                        alert('Failed to complete training session.');
+                    }
+                } catch (error) {
+                    console.error('Error completing training:', error);
+                    alert('Error completing training session.');
+                }
+            }
+        }
+
+        // Generate system prompt
+        async function generateSystemPrompt() {
+            if (!currentAgent) return;
+
+            if (confirm('Generate a new system prompt based on current training?')) {
+                try {
+                    const conversationHistory = currentSession?.messages?.map(m => `${m.role}: ${m.content}`) || [];
+                    
+                    const response = await fetch(`/api/agents/${currentAgent.id}/generate-prompt`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                        },
+                        body: JSON.stringify({ conversationHistory })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert('System prompt generated successfully!');
+                        loadAgents(); // Refresh agents list
+                    } else {
+                        alert('Failed to generate system prompt.');
+                    }
+                } catch (error) {
+                    console.error('Error generating system prompt:', error);
+                    alert('Error generating system prompt.');
+                }
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                const response = await fetch('/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+                
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+            } catch (error) {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+            }
+        }
+    </script>
+</body>
+</html> 

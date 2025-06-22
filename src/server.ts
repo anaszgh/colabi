@@ -14,6 +14,7 @@ import accountRoutes from './routes/account.routes';
 import oauthRoutes from './routes/oauth.routes';
 import linkedinRoutes from './routes/linkedin.routes';
 import instagramRoutes from './routes/instagram.routes';
+import agentRoutes from './routes/agent.routes';
 
 // Load environment variables
 dotenv.config();
@@ -50,6 +51,7 @@ app.use(async (req: Request, res: Response, next: NextFunction) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/agents', agentRoutes);
 app.use('/auth', oauthRoutes);
 app.use('/user', dashboardRoutes);
 app.use('/linkedin', linkedinRoutes);
@@ -103,6 +105,14 @@ app.get('/accounts', (req: Request, res: Response) => {
   // In a real app, you'd want to verify authentication here
   res.render('accounts', { 
     title: 'Connected Accounts - Colabi',
+    user: { name: 'Anas Aref', email: 'anas.zgh@gmail.com' } // This should come from session/JWT
+  });
+});
+
+app.get('/train-agent', (req: Request, res: Response) => {
+  // In a real app, you'd want to verify authentication here
+  res.render('train-agent', { 
+    title: 'Train your Agent - Colabi',
     user: { name: 'Anas Aref', email: 'anas.zgh@gmail.com' } // This should come from session/JWT
   });
 });
