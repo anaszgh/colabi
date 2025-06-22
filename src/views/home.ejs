@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1 class="logo">Colabi</h1>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How it Works</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="/login" class="btn btn-outline">Sign In</a>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        Never Miss a <span class="gradient-text">Business Opportunity</span> Again
+                    </h1>
+                    <p class="hero-description">
+                        AI-powered message management for influencers and agencies. Automatically analyze, respond to, and prioritize your social media messages to capture every business opportunity.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="/register" class="btn btn-primary btn-large">Start Free Trial</a>
+                        <a href="#demo" class="btn btn-secondary btn-large">Watch Demo</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">10K+</span>
+                            <span class="stat-label">Messages Analyzed</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Influencers</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">98%</span>
+                            <span class="stat-label">Response Rate</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="mockup-container">
+                        <div class="mockup-phone">
+                            <div class="mockup-screen">
+                                <div class="message-preview">
+                                    <div class="message high-priority">
+                                        <div class="message-indicator business"></div>
+                                        <div class="message-content">
+                                            <strong>Brand Partnership Inquiry</strong>
+                                            <p>Hi! We'd love to collaborate on a campaign...</p>
+                                        </div>
+                                        <div class="message-ai">✨ AI: High-value opportunity detected</div>
+                                    </div>
+                                    <div class="message medium-priority">
+                                        <div class="message-indicator fan"></div>
+                                        <div class="message-content">
+                                            <strong>Fan Question</strong>
+                                            <p>Where did you get that amazing outfit?</p>
+                                        </div>
+                                        <div class="message-ai">🤖 Auto-reply sent</div>
+                                    </div>
+                                    <div class="message low-priority">
+                                        <div class="message-indicator general"></div>
+                                        <div class="message-content">
+                                            <strong>General Comment</strong>
+                                            <p>Love your content! Keep it up ❤️</p>
+                                        </div>
+                                        <div class="message-ai">👍 Acknowledged</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem">
+        <div class="container">
+            <div class="section-header">
+                <h2>The Challenge Every Influencer Faces</h2>
+                <p>Managing hundreds of messages across multiple platforms is overwhelming</p>
+            </div>
+            <div class="problem-grid">
+                <div class="problem-item">
+                    <div class="problem-icon">📱</div>
+                    <h3>Message Overload</h3>
+                    <p>Hundreds of DMs, comments, and mentions across Instagram, TikTok, YouTube, and Twitter</p>
+                </div>
+                <div class="problem-item">
+                    <div class="problem-icon">💰</div>
+                    <h3>Missed Opportunities</h3>
+                    <p>Business inquiries get buried in fan messages, leading to lost brand partnerships and revenue</p>
+                </div>
+                <div class="problem-item">
+                    <div class="problem-icon">⏰</div>
+                    <h3>Time Consuming</h3>
+                    <p>Hours spent manually sorting through messages instead of creating content</p>
+                </div>
+                <div class="problem-item">
+                    <div class="problem-icon">😰</div>
+                    <h3>Burnout Risk</h3>
+                    <p>Constant pressure to respond to everyone leads to stress and decreased engagement</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>AI-Powered Message Intelligence</h2>
+                <p>Let artificial intelligence handle the heavy lifting while you focus on what matters</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <h3>Smart Message Analysis</h3>
+                    <p>AI automatically categorizes messages by priority: business inquiries, fan questions, collaborations, and spam</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3>Automated Responses</h3>
+                    <p>Respond to common questions instantly with personalized, brand-appropriate auto-replies</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m15.5-6.5l-4.24 4.24M7.76 7.76l-4.24-4.24m12.02 12.02l-4.24-4.24M7.76 16.24l-4.24 4.24"/>
+                        </svg>
+                    </div>
+                    <h3>Multi-Platform Integration</h3>
+                    <p>Connect Instagram, TikTok, YouTube, Twitter, and more in one unified dashboard</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+                        </svg>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Track engagement patterns, identify business opportunities, and measure response effectiveness</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3>Team Collaboration</h3>
+                    <p>Perfect for agencies managing multiple influencers with role-based access and workflow management</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <circle cx="12" cy="16" r="1"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+                    <h3>Privacy & Security</h3>
+                    <p>Enterprise-grade security with encrypted connections and compliance with social media platform policies</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2>How Colabi Works</h2>
+                <p>Get started in minutes, see results immediately</p>
+            </div>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Connect Your Accounts</h3>
+                        <p>Securely link your Instagram, TikTok, YouTube, and Twitter accounts with one-click authentication</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>AI Learns Your Style</h3>
+                        <p>Our AI analyzes your existing responses to understand your voice, tone, and brand personality</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Messages Get Analyzed</h3>
+                        <p>Every incoming message is automatically categorized and prioritized based on business value and urgency</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Smart Responses</h3>
+                        <p>High-priority messages are flagged for personal attention, while routine messages get instant AI responses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience Section -->
+    <section class="audience">
+        <div class="container">
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <div class="audience-icon">🎭</div>
+                    <h3>For Influencers</h3>
+                    <ul>
+                        <li>Never miss a brand partnership opportunity</li>
+                        <li>Respond to fans instantly, even while sleeping</li>
+                        <li>Focus on content creation, not message management</li>
+                        <li>Grow your engagement without burning out</li>
+                    </ul>
+                    <a href="/register?type=influencer" class="btn btn-primary">Start as Influencer</a>
+                </div>
+                <div class="audience-card">
+                    <div class="audience-icon">🏢</div>
+                    <h3>For Agencies</h3>
+                    <ul>
+                        <li>Manage multiple influencer accounts efficiently</li>
+                        <li>Team collaboration and workflow management</li>
+                        <li>Centralized analytics and reporting</li>
+                        <li>Scale your operations without hiring more staff</li>
+                    </ul>
+                    <a href="/register?type=agency" class="btn btn-primary">Start as Agency</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Choose the plan that works for your scale</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">29</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <p class="plan-description">Perfect for individual influencers</p>
+                    <ul>
+                        <li>Up to 3 social media accounts</li>
+                        <li>1,000 messages per month</li>
+                        <li>Basic AI analysis</li>
+                        <li>Auto-responses</li>
+                        <li>Email support</li>
+                    </ul>
+                    <a href="/register?plan=starter" class="btn btn-outline">Start Free Trial</a>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="popular-badge">Most Popular</div>
+                    <h3>Professional</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">79</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <p class="plan-description">For growing influencers</p>
+                    <ul>
+                        <li>Up to 10 social media accounts</li>
+                        <li>10,000 messages per month</li>
+                        <li>Advanced AI analysis</li>
+                        <li>Custom response templates</li>
+                        <li>Priority support</li>
+                        <li>Analytics dashboard</li>
+                    </ul>
+                    <a href="/register?plan=professional" class="btn btn-primary">Start Free Trial</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>Agency</h3>
+                    <div class="price">
+                        <span class="currency">$</span>
+                        <span class="amount">199</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <p class="plan-description">For agencies and teams</p>
+                    <ul>
+                        <li>Unlimited social media accounts</li>
+                        <li>Unlimited messages</li>
+                        <li>Team collaboration tools</li>
+                        <li>White-label options</li>
+                        <li>Dedicated account manager</li>
+                        <li>Custom integrations</li>
+                    </ul>
+                    <a href="/register?plan=agency" class="btn btn-outline">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Transform Your Message Management?</h2>
+                <p>Join thousands of influencers who never miss an opportunity</p>
+                <div class="cta-buttons">
+                    <a href="/register" class="btn btn-primary btn-large">Start Your Free Trial</a>
+                    <a href="#demo" class="btn btn-secondary btn-large">Book a Demo</a>
+                </div>
+                <p class="cta-note">No credit card required • 14-day free trial • Cancel anytime</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3 class="logo">Colabi</h3>
+                    <p>AI-powered message management for the creator economy</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#pricing">Pricing</a>
+                        <a href="#integrations">Integrations</a>
+                        <a href="#api">API</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="#blog">Blog</a>
+                        <a href="#help">Help Center</a>
+                        <a href="#guides">Guides</a>
+                        <a href="#case-studies">Case Studies</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <a href="#about">About</a>
+                        <a href="#careers">Careers</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#privacy">Privacy</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Colabi. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.nav-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

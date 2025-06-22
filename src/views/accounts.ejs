@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1 class="logo">Colabi</h1>
+                <nav class="nav-menu">
+                    <a href="/dashboard" class="nav-item">Dashboard</a>
+                    <a href="#" class="nav-item">Messages</a>
+                    <a href="/accounts" class="nav-item active">Accounts</a>
+                    <a href="#" class="nav-item">Analytics</a>
+                    <a href="#" class="nav-item">Settings</a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <span class="user-name"><%= user.name %></span>
+                    <div class="user-avatar">
+                        <%= user.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16,17 21,12 16,7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="accounts-header">
+                <div class="accounts-title">
+                    <h2>Connected Accounts</h2>
+                    <p>Manage your social media accounts and connect new platforms</p>
+                </div>
+                <button class="add-account-btn" onclick="showAddAccountModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="16"/>
+                        <line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                    Add Account
+                </button>
+            </div>
+
+            <!-- Alerts -->
+            <div id="alerts-container"></div>
+
+            <!-- Accounts Grid -->
+            <div class="accounts-grid" id="accounts-grid">
+                <!-- Accounts will be populated here by JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-state-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <rect x="3" y="3" width="6" height="6" rx="1"/>
+                        <rect x="15" y="3" width="6" height="6" rx="1"/>
+                        <rect x="3" y="15" width="6" height="6" rx="1"/>
+                        <rect x="15" y="15" width="6" height="6" rx="1"/>
+                        <path d="M9 6h6M9 18h6M6 9v6M18 9v6"/>
+                    </svg>
+                </div>
+                <h3>No Connected Accounts</h3>
+                <p>Connect your social media accounts to start managing your messages with AI</p>
+                <button class="btn btn-primary" onclick="showAddAccountModal()">Connect Your First Account</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Alerts Container -->
+    <div id="alerts-container"></div>
+
+    <!-- Add Account Modal -->
+    <div class="modal" id="add-account-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Connect New Account</h3>
+                <button class="close-btn" onclick="hideAddAccountModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Select the platform you want to connect:</p>
+                <div class="platforms-grid">
+                    <button class="platform-btn" onclick="connectPlatform('instagram')">
+                        <div class="platform-icon instagram">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                <path d="m16 11.37-1.42-1.43a7.5 7.5 0 0 0-5.16 0L8 11.37"/>
+                                <circle cx="12" cy="12" r="3"/>
+                                <circle cx="17.5" cy="6.5" r="1.5"/>
+                            </svg>
+                        </div>
+                        <span>Instagram</span>
+                    </button>
+                    <button class="platform-btn" onclick="connectPlatform('tiktok')">
+                        <div class="platform-icon tiktok">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12.525 7.47V4.44c.4.07.8.12 1.22.12.53 0 1.05-.08 1.55-.22v2.74c-1.1 0-2.04-.4-2.77-1.11zM8.47 13.91c.3-.03.6-.08.9-.15v2.82c-.3.02-.6.03-.9.03-2.19 0-3.96-1.77-3.96-3.96 0-.55.11-1.07.31-1.55.6.35 1.3.56 2.05.56.2 0 .4-.01.6-.03v1.28z"/>
+                            </svg>
+                        </div>
+                        <span>TikTok</span>
+                    </button>
+                    <button class="platform-btn" onclick="connectPlatform('youtube')">
+                        <div class="platform-icon youtube">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.5 6.5c-.3-1.1-1.1-1.9-2.2-2.2-1.9-.5-9.5-.5-9.5-.5s-7.6 0-9.5.5c-1.1.3-1.9 1.1-2.2 2.2-.5 1.9-.5 5.8-.5 5.8s0 3.9.5 5.8c.3 1.1 1.1 1.9 2.2 2.2 1.9.5 9.5.5 9.5.5s7.6 0 9.5-.5c1.1-.3 1.9-1.1 2.2-2.2.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.8 15.5V8.8l6.3 3.4-6.3 3.3z"/>
+                            </svg>
+                        </div>
+                        <span>YouTube</span>
+                    </button>
+                    <button class="platform-btn" onclick="connectPlatform('twitter')">
+                        <div class="platform-icon twitter">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </div>
+                        <span>Twitter</span>
+                    </button>
+                    <button class="platform-btn" onclick="connectPlatform('facebook')">
+                        <div class="platform-icon facebook">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </div>
+                        <span>Facebook</span>
+                    </button>
+                    <button class="platform-btn" onclick="connectPlatform('linkedin')">
+                        <div class="platform-icon linkedin">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </div>
+                        <span>LinkedIn</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let accounts = [];
+
+        // Load accounts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAccounts();
+            checkForMessages();
+        });
+
+        // Load accounts from API
+        async function loadAccounts() {
+            try {
+                const token = localStorage.getItem('accessToken');
+                console.log('Loading accounts with token:', token ? 'Present' : 'Missing');
+                
+                if (!token) {
+                    console.warn('No access token found, redirecting to login');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const response = await fetch('/api/accounts', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                console.log('API Response status:', response.status);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Accounts loaded:', result);
+                    accounts = result.data.accounts;
+                    renderAccounts();
+                } else if (response.status === 401) {
+                    console.warn('Token expired or invalid, redirecting to login');
+                    localStorage.removeItem('accessToken');
+                    window.location.href = '/login';
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Failed to load accounts:', errorData);
+                    showAlert(errorData.error || 'Failed to load accounts', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+                showAlert('Failed to load accounts. Please check console for details.', 'error');
+            }
+        }
+
+        // Render accounts grid
+        function renderAccounts() {
+            const grid = document.getElementById('accounts-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (accounts.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = accounts.map(account => `
+                <div class="account-card" data-account-id="${account.id}">
+                    <div class="account-header">
+                        <div class="account-platform">
+                            <div class="platform-icon ${account.platform}">
+                                ${getPlatformIcon(account.platform)}
+                            </div>
+                            <span class="platform-name">${account.platformDisplayName}</span>
+                        </div>
+                        <div class="account-status ${account.status}">
+                            ${getStatusIcon(account.status)}
+                        </div>
+                    </div>
+                    <div class="account-info">
+                        <div class="account-avatar">
+                            ${account.avatar ? `<img src="${account.avatar}" alt="${account.displayName}">` : 
+                              `<div class="avatar-placeholder">${(account.displayName || account.username).charAt(0).toUpperCase()}</div>`}
+                        </div>
+                        <div class="account-details">
+                            <h4>${account.displayName || account.username}</h4>
+                            <p>@${account.username}</p>
+                            ${account.followersCount ? `<span class="followers">${formatNumber(account.followersCount)} followers</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="account-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="syncAccount('${account.id}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6M1 20v-6h6"/>
+                                <path d="m3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                            Sync
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="disconnectAccount('${account.id}', '${account.username}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Disconnect
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Platform icons
+        function getPlatformIcon(platform) {
+            const icons = {
+                instagram: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="m16 11.37-1.42-1.43a7.5 7.5 0 0 0-5.16 0L8 11.37"/><circle cx="12" cy="12" r="3"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>',
+                tiktok: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525 7.47V4.44c.4.07.8.12 1.22.12.53 0 1.05-.08 1.55-.22v2.74c-1.1 0-2.04-.4-2.77-1.11zM8.47 13.91c.3-.03.6-.08.9-.15v2.82c-.3.02-.6.03-.9.03-2.19 0-3.96-1.77-3.96-3.96 0-.55.11-1.07.31-1.55.6.35 1.3.56 2.05.56.2 0 .4-.01.6-.03v1.28z"/></svg>',
+                youtube: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.5c-.3-1.1-1.1-1.9-2.2-2.2-1.9-.5-9.5-.5-9.5-.5s-7.6 0-9.5.5c-1.1.3-1.9 1.1-2.2 2.2-.5 1.9-.5 5.8-.5 5.8s0 3.9.5 5.8c.3 1.1 1.1 1.9 2.2 2.2 1.9.5 9.5.5 9.5.5s7.6 0 9.5-.5c1.1-.3 1.9-1.1 2.2-2.2.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.8 15.5V8.8l6.3 3.4-6.3 3.3z"/></svg>',
+                twitter: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+                facebook: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+                linkedin: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>'
+            };
+            return icons[platform] || '';
+        }
+
+        // Status icons
+        function getStatusIcon(status) {
+            const icons = {
+                connected: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>',
+                disconnected: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+                error: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+                expired: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>'
+            };
+            return icons[status] || icons.disconnected;
+        }
+
+        // Utility functions
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Modal functions
+        function showAddAccountModal() {
+            console.log('Showing add account modal');
+            try {
+                const modal = document.getElementById('add-account-modal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                    console.log('Modal displayed successfully');
+                } else {
+                    console.error('Modal element not found');
+                    showAlert('Error opening modal', 'error');
+                }
+            } catch (error) {
+                console.error('Error showing modal:', error);
+                showAlert('Error opening modal', 'error');
+            }
+        }
+
+        function hideAddAccountModal() {
+            console.log('Hiding add account modal');
+            try {
+                const modal = document.getElementById('add-account-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                } else {
+                    console.error('Modal element not found');
+                }
+            } catch (error) {
+                console.error('Error hiding modal:', error);
+            }
+        }
+
+        // Connect platform
+        async function connectPlatform(platform) {
+            try {
+                console.log('Connecting platform:', platform);
+                hideAddAccountModal();
+                showAlert('Connecting to ' + platform + '...', 'info');
+
+                const token = localStorage.getItem('accessToken');
+                if (!token) {
+                    console.warn('No access token found, redirecting to login');
+                    showAlert('Please log in first', 'error');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const response = await fetch(`/api/accounts/connect/${platform}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('Connect response status:', response.status);
+                const result = await response.json();
+                console.log('Connect response data:', result);
+
+                if (response.ok) {
+                    // Redirect to OAuth URL
+                    console.log('Redirecting to:', result.data.authUrl);
+                    window.location.href = result.data.authUrl;
+                } else if (response.status === 401) {
+                    console.warn('Token expired or invalid, redirecting to login');
+                    localStorage.removeItem('accessToken');
+                    showAlert('Session expired. Please log in again.', 'error');
+                    window.location.href = '/login';
+                } else {
+                    console.error('Failed to connect:', result);
+                    showAlert(result.error || 'Failed to connect account', 'error');
+                }
+            } catch (error) {
+                console.error('Error connecting platform:', error);
+                showAlert('Failed to connect account. Please check console for details.', 'error');
+            }
+        }
+
+        // Sync account
+        async function syncAccount(accountId) {
+            try {
+                showAlert('Syncing account...', 'info');
+
+                const response = await fetch(`/api/accounts/${accountId}/sync`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Account synced successfully', 'success');
+                    loadAccounts(); // Reload accounts
+                } else {
+                    showAlert(result.error || 'Failed to sync account', 'error');
+                }
+            } catch (error) {
+                console.error('Error syncing account:', error);
+                showAlert('Failed to sync account', 'error');
+            }
+        }
+
+        // Disconnect account
+        async function disconnectAccount(accountId, username) {
+            if (!confirm(`Are you sure you want to disconnect @${username}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/accounts/${accountId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Account disconnected successfully', 'success');
+                    loadAccounts(); // Reload accounts
+                } else {
+                    showAlert(result.error || 'Failed to disconnect account', 'error');
+                }
+            } catch (error) {
+                console.error('Error disconnecting account:', error);
+                showAlert('Failed to disconnect account', 'error');
+            }
+        }
+
+        // Alert system
+        function showAlert(message, type = 'info') {
+            const alertsContainer = document.getElementById('alerts-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">×</button>
+            `;
+            alertsContainer.appendChild(alert);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        // Check for URL messages (success/error from OAuth callback)
+        function checkForMessages() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+
+            if (success) {
+                showAlert(success, 'success');
+                loadAccounts(); // Reload accounts
+                // Clean URL
+                window.history.replaceState({}, document.title, '/accounts');
+            }
+
+            if (error) {
+                showAlert(error, 'error');
+                // Clean URL
+                window.history.replaceState({}, document.title, '/accounts');
+            }
+        }
+
+        // Logout function
+        async function handleLogout() {
+            try {
+                const response = await fetch('/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    localStorage.removeItem('accessToken');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                localStorage.removeItem('accessToken');
+                window.location.href = '/login';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('add-account-modal');
+            if (event.target === modal) {
+                hideAddAccountModal();
+            }
+        }
+    </script>
+</body>
+</html> 

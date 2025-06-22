@@ -1,0 +1,150 @@
+<!-- views/partials/dashboard-scripts.ejs -->
+<script>
+    // Auth utilities
+    const AuthUtils = {
+        getAccessToken: () => localStorage.getItem('accessToken'),
+        clearTokens: () => {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+        },
+        
+        // Make authenticated API call
+        apiCall: async (url, options = {}) => {
+            const token = AuthUtils.getAccessToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(url, {
+                ...options,
+                headers
+            });
+            
+            if (response.status === 401) {
+                // Token expired or invalid
+                AuthUtils.clearTokens();
+                window.location.href = '/login';
+                return null;
+            }
+            
+            return response;
+        }
+    };
+    
+    // Global user data
+    let currentUser = null;
+    
+    // Load user data for header
+    async function loadUserData() {
+        try {
+            const response = await AuthUtils.apiCall('/api/auth/me');
+            if (!response || !response.ok) {
+                throw new Error('Failed to load user data');
+            }
+            
+            const data = await response.json();
+            currentUser = data.data.user;
+            
+            // Update header UI
+            updateHeaderUI();
+            
+            return currentUser;
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            throw error;
+        }
+    }
+    
+    // Update header UI with user data
+    function updateHeaderUI() {
+        if (!currentUser) return;
+        
+        // Update user name
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+            userNameEl.textContent = currentUser.name;
+        }
+        
+        // Update user initials
+        const initialsEl = document.getElementById('user-initials');
+        if (initialsEl) {
+            const initials = currentUser.name
+                .split(' ')
+                .map(word => word.charAt(0))
+                .join('')
+                .toUpperCase()
+                .slice(0, 2);
+            initialsEl.textContent = initials;
+        }
+    }
+    
+    // Handle logout
+    async function handleLogout() {
+        try {
+            await AuthUtils.apiCall('/api/auth/logout', { method: 'POST' });
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            AuthUtils.clearTokens();
+            window.location.href = '/login';
+        }
+    }
+    
+    // Format numbers utility
+    function formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return (num / 1000).toFixed(1) + 'K';
+        }
+        return num.toString();
+    }
+    
+    // Time ago utility
+    function getTimeAgo(date) {
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+        
+        if (diffInSeconds < 60) {
+            return 'Just now';
+        } else if (diffInSeconds < 3600) {
+            const minutes = Math.floor(diffInSeconds / 60);
+            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        } else if (diffInSeconds < 86400) {
+            const hours = Math.floor(diffInSeconds / 3600);
+            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        } else {
+            const days = Math.floor(diffInSeconds / 86400);
+            return `${days} day${days > 1 ? 's' : ''} ago`;
+        }
+    }
+    
+    // Check authentication on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+        const token = AuthUtils.getAccessToken();
+        
+        if (!token) {
+            // No token, redirect to login
+            window.location.href = '/login';
+            return;
+        }
+        
+        try {
+            // Load user data for header
+            await loadUserData();
+            
+            // Call page-specific initialization if it exists
+            if (typeof initializePage === 'function') {
+                await initializePage();
+            }
+        } catch (error) {
+            console.error('Page initialization error:', error);
+            // Don't redirect on initialization errors, let page handle it
+        }
+    });
+</script>
