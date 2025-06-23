@@ -142,8 +142,36 @@ export class AccountService {
       throw new Error('Account not found');
     }
 
+    // First, unassign any agents that are assigned to this account
+    await this.unassignAgentsFromAccount(accountId, userId);
+
+    // Then delete the account
     await this.accountRepository.remove(account);
     return true;
+  }
+
+  /**
+   * Unassign all agents from an account before deletion
+   */
+  private async unassignAgentsFromAccount(accountId: string, userId: string): Promise<void> {
+    try {
+      // Import AgentService dynamically to avoid circular dependency
+      const { AgentService } = await import('./agent.service');
+      const agentService = new AgentService();
+      
+      // Find the agent assigned to this account (if any)
+      const assignedAgent = await agentService.getAgentByAccount(accountId, userId);
+      
+      // Unassign the agent if one is found
+      if (assignedAgent) {
+        await agentService.unassignFromAccount(assignedAgent.id, userId);
+        console.log(`Unassigned agent ${assignedAgent.name} from account ${accountId} before deletion`);
+      }
+    } catch (error) {
+      console.error('Error unassigning agents from account:', error);
+      // Continue with account deletion even if agent unassignment fails
+      // This prevents account deletion from being blocked by agent issues
+    }
   }
 
   /**

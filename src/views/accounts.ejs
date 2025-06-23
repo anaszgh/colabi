@@ -156,6 +156,171 @@
         </div>
     </div>
 
+    <!-- Agent Assignment Modal -->
+    <div class="modal" id="agent-assignment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign Agent to Account</h3>
+                <button class="close-btn" onclick="hideAgentAssignmentModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="assignment-account-info" class="assignment-account-info">
+                    <!-- Account info will be populated here -->
+                </div>
+                <p>Select an AI agent to handle messages for this account:</p>
+                <div id="agents-list" class="agents-list">
+                    <!-- Agents will be populated here -->
+                </div>
+                <div class="current-assignment" id="current-assignment" style="display: none;">
+                    <h4>Current Assignment</h4>
+                    <div id="current-assigned-agent">
+                        <!-- Current agent info will be populated here -->
+                    </div>
+                    <button class="btn btn-danger" onclick="unassignAgent()">
+                        Unassign Agent
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .agent-assignment {
+            padding: 0.75rem 0;
+            border-top: 1px solid #f0f0f0;
+            margin-top: 0.75rem;
+        }
+        
+        .assigned-agent {
+            font-size: 0.875rem;
+        }
+        
+        .assigned-agent.has-agent {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #10b981;
+        }
+        
+        .assigned-agent.no-agent {
+            color: #6b7280;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .assignment-account-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .assignment-account-info .platform-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .agents-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .agent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .agent-item:last-child {
+            border-bottom: none;
+        }
+        
+        .agent-item:hover {
+            background: #f8fafc;
+        }
+        
+        .agent-info {
+            flex: 1;
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .agent-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .agent-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .agent-status.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .agent-status.training {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .agent-status.inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .current-assignment {
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .current-assignment h4 {
+            margin: 0 0 0.75rem;
+            color: #0c4a6e;
+        }
+        
+        .empty-agents {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .loading-agents {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+    </style>
+
     <script>
         const platforms = {
             instagram: 'Instagram',
@@ -252,7 +417,15 @@
                             ${account.followersCount ? `<span class="followers">${formatNumber(account.followersCount)} followers</span>` : ''}
                         </div>
                     </div>
+                    <div class="agent-assignment">
+                        <div class="assigned-agent" id="assigned-agent-${account.id}">
+                            <!-- Agent assignment will be populated here -->
+                        </div>
+                    </div>
                     <div class="account-actions">
+                        <button class="btn btn-primary btn-sm" onclick="showAgentAssignmentModal('${account.id}', '${account.platform}', '${account.username}')">
+                            🤖 Assign Agent
+                        </button>
                         <button class="btn btn-secondary btn-sm" onclick="syncAccount('${account.id}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M23 4v6h-6M1 20v-6h6"/>
@@ -495,12 +668,257 @@
             }
         }
 
+        // Global variables for agent assignment
+        let currentAssignmentAccountId = null;
+        let currentAssignmentAccountName = null;
+        let currentAssignmentPlatform = null;
+        let availableAgents = [];
+
+        // Agent Assignment Functions
+        function showAgentAssignmentModal(accountId, platform, username) {
+            currentAssignmentAccountId = accountId;
+            currentAssignmentAccountName = username;
+            currentAssignmentPlatform = platform;
+
+            // Update account info in modal
+            document.getElementById('assignment-account-info').innerHTML = `
+                <div class="platform-icon ${platform}">
+                    ${getPlatformIcon(platform)}
+                </div>
+                <div>
+                    <div style="font-weight: 600;">${platforms[platform]}</div>
+                    <div style="color: #6b7280; font-size: 0.875rem;">@${username}</div>
+                </div>
+            `;
+
+            // Show modal
+            document.getElementById('agent-assignment-modal').style.display = 'flex';
+            
+            // Load agents and current assignment
+            loadAgentsForAssignment();
+            checkCurrentAssignment();
+        }
+
+        function hideAgentAssignmentModal() {
+            document.getElementById('agent-assignment-modal').style.display = 'none';
+            currentAssignmentAccountId = null;
+            currentAssignmentAccountName = null;
+            currentAssignmentPlatform = null;
+        }
+
+        async function loadAgentsForAssignment() {
+            const agentsList = document.getElementById('agents-list');
+            agentsList.innerHTML = '<div class="loading-agents">Loading agents...</div>';
+
+            try {
+                const response = await fetch('/api/agents', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    availableAgents = result.data;
+                    renderAgentsForAssignment();
+                } else {
+                    agentsList.innerHTML = '<div class="empty-agents">Failed to load agents</div>';
+                }
+            } catch (error) {
+                console.error('Error loading agents:', error);
+                agentsList.innerHTML = '<div class="empty-agents">Error loading agents</div>';
+            }
+        }
+
+        function renderAgentsForAssignment() {
+            const agentsList = document.getElementById('agents-list');
+            
+            if (availableAgents.length === 0) {
+                agentsList.innerHTML = `
+                    <div class="empty-agents">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤖</div>
+                        <p>No agents available</p>
+                        <p style="font-size: 0.875rem; color: #6b7280;">Create an agent first in the Training section</p>
+                    </div>
+                `;
+                return;
+            }
+
+            agentsList.innerHTML = availableAgents.map(agent => `
+                <div class="agent-item" onclick="assignAgentToAccount('${agent.id}')">
+                    <div class="agent-info">
+                        <div class="agent-name">${agent.name}</div>
+                        <div class="agent-description">${agent.description}</div>
+                        <div class="agent-status ${agent.status?.toLowerCase() || 'training'}">${agent.status || 'Training'}</div>
+                    </div>
+                    <div class="agent-progress">
+                        <div style="font-size: 0.75rem; color: #6b7280;">
+                            ${Math.round(agent.trainingProgress || 0)}% trained
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function checkCurrentAssignment() {
+            const currentAssignmentDiv = document.getElementById('current-assignment');
+            
+            try {
+                // Find if any agent is assigned to this account
+                const assignedAgent = availableAgents.find(agent => agent.assignedAccountId === currentAssignmentAccountId);
+                
+                if (assignedAgent) {
+                    document.getElementById('current-assigned-agent').innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                ${assignedAgent.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">${assignedAgent.name}</div>
+                                <div style="color: #6b7280; font-size: 0.875rem;">${assignedAgent.description}</div>
+                                <div style="font-size: 0.75rem; margin-top: 0.25rem;">
+                                    <span class="agent-status ${assignedAgent.status?.toLowerCase() || 'training'}">${assignedAgent.status || 'Training'}</span>
+                                    <span style="margin-left: 0.5rem; color: #6b7280;">${Math.round(assignedAgent.trainingProgress || 0)}% trained</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    currentAssignmentDiv.style.display = 'block';
+                } else {
+                    currentAssignmentDiv.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking current assignment:', error);
+                currentAssignmentDiv.style.display = 'none';
+            }
+        }
+
+        async function assignAgentToAccount(agentId) {
+            if (!currentAssignmentAccountId) return;
+
+            try {
+                showAlert('Assigning agent...', 'info');
+
+                const response = await fetch(`/api/agents/${agentId}/assign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    },
+                    body: JSON.stringify({ 
+                        accountId: currentAssignmentAccountId 
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Agent assigned successfully!', 'success');
+                    hideAgentAssignmentModal();
+                    loadAccounts(); // Reload to show assignment
+                    updateAgentAssignmentDisplay();
+                } else {
+                    showAlert(result.message || 'Failed to assign agent', 'error');
+                }
+            } catch (error) {
+                console.error('Error assigning agent:', error);
+                showAlert('Error assigning agent', 'error');
+            }
+        }
+
+        async function unassignAgent() {
+            if (!currentAssignmentAccountId) return;
+
+            // Find the assigned agent
+            const assignedAgent = availableAgents.find(agent => agent.assignedAccountId === currentAssignmentAccountId);
+            if (!assignedAgent) return;
+
+            if (!confirm(`Are you sure you want to unassign ${assignedAgent.name} from this account?`)) {
+                return;
+            }
+
+            try {
+                showAlert('Unassigning agent...', 'info');
+
+                const response = await fetch(`/api/agents/${assignedAgent.id}/unassign`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Agent unassigned successfully!', 'success');
+                    hideAgentAssignmentModal();
+                    loadAccounts(); // Reload to show change
+                    updateAgentAssignmentDisplay();
+                } else {
+                    showAlert(result.message || 'Failed to unassign agent', 'error');
+                }
+            } catch (error) {
+                console.error('Error unassigning agent:', error);
+                showAlert('Error unassigning agent', 'error');
+            }
+        }
+
+        async function updateAgentAssignmentDisplay() {
+            // Reload and update the assignment display for all accounts
+            try {
+                const response = await fetch('/api/agents', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const agents = result.data;
+
+                    // Update each account's assignment display
+                    accounts.forEach(account => {
+                        const assignedAgent = agents.find(agent => agent.assignedAccountId === account.id);
+                        const assignmentDiv = document.getElementById(`assigned-agent-${account.id}`);
+                        
+                        if (assignmentDiv) {
+                            if (assignedAgent) {
+                                assignmentDiv.className = 'assigned-agent has-agent';
+                                assignmentDiv.innerHTML = `
+                                    <span>🤖</span>
+                                    <span>Assigned to <strong>${assignedAgent.name}</strong></span>
+                                `;
+                            } else {
+                                assignmentDiv.className = 'assigned-agent no-agent';
+                                assignmentDiv.innerHTML = 'No agent assigned';
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating assignment display:', error);
+            }
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('add-account-modal');
-            if (event.target === modal) {
+            const addModal = document.getElementById('add-account-modal');
+            const assignmentModal = document.getElementById('agent-assignment-modal');
+            
+            if (event.target === addModal) {
                 hideAddAccountModal();
             }
+            
+            if (event.target === assignmentModal) {
+                hideAgentAssignmentModal();
+            }
+        }
+
+        // Load and update assignment display when accounts are loaded
+        const originalRenderAccounts = renderAccounts;
+        renderAccounts = function() {
+            originalRenderAccounts();
+            setTimeout(updateAgentAssignmentDisplay, 100); // Small delay to ensure DOM is ready
         }
     </script>
 </body>

@@ -99,22 +99,71 @@ export class AgentService {
   /**
    * Get all agents for a user
    */
-  async getUserAgents(userId: string): Promise<Agent[]> {
-    return await this.agentRepository.find({
+  async getUserAgents(userId: string): Promise<any[]> {
+    const agents = await this.agentRepository.find({
       where: { userId },
       relations: ['assignedAccount', 'trainingSessions'],
       order: { createdAt: 'DESC' }
     });
+
+    // Transform agents to include calculated trainingProgress
+    return agents.map(agent => ({
+      id: agent.id,
+      userId: agent.userId,
+      name: agent.name,
+      description: agent.description,
+      systemPrompt: agent.systemPrompt,
+      status: agent.status,
+      trainingData: agent.trainingData,
+      metadata: agent.metadata,
+      assignedAccountId: agent.assignedAccountId,
+      createdAt: agent.createdAt,
+      updatedAt: agent.updatedAt,
+      assignedAccount: agent.assignedAccount,
+      trainingSessions: agent.trainingSessions,
+      // Calculated properties
+      trainingProgress: agent.trainingProgress,
+      isActive: agent.isActive,
+      isTraining: agent.isTraining,
+      hasSystemPrompt: agent.hasSystemPrompt
+    }));
   }
 
   /**
    * Get a specific agent by ID
    */
-  async getAgentById(id: string, userId: string): Promise<Agent | null> {
-    return await this.agentRepository.findOne({
+  async getAgentById(id: string, userId: string): Promise<any | null> {
+    const agent = await this.agentRepository.findOne({
       where: { id, userId },
       relations: ['assignedAccount', 'trainingSessions', 'user']
     });
+
+    if (!agent) {
+      return null;
+    }
+
+    // Transform agent to include calculated properties
+    return {
+      id: agent.id,
+      userId: agent.userId,
+      name: agent.name,
+      description: agent.description,
+      systemPrompt: agent.systemPrompt,
+      status: agent.status,
+      trainingData: agent.trainingData,
+      metadata: agent.metadata,
+      assignedAccountId: agent.assignedAccountId,
+      createdAt: agent.createdAt,
+      updatedAt: agent.updatedAt,
+      assignedAccount: agent.assignedAccount,
+      trainingSessions: agent.trainingSessions,
+      user: agent.user,
+      // Calculated properties
+      trainingProgress: agent.trainingProgress,
+      isActive: agent.isActive,
+      isTraining: agent.isTraining,
+      hasSystemPrompt: agent.hasSystemPrompt
+    };
   }
 
   /**

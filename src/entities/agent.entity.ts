@@ -90,7 +90,7 @@ export class Agent {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @ManyToOne(() => Account, account => account.assignedAgents, { nullable: true })
+  @ManyToOne(() => Account, account => account.assignedAgents, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'assignedAccountId' })
   assignedAccount?: Account;
 
