@@ -121,7 +121,11 @@ app.get('/train-agent', (req: Request, res: Response) => {
 app.post('/auth/login', async (req: Request, res: Response) => {
   try {
     // Forward to the actual API route
-    const response = await fetch(`http://localhost:${PORT}/api/auth/login`, {
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? `${req.protocol}://${req.get('host')}` 
+      : `http://localhost:${PORT}`;
+    
+    const response = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -146,7 +150,11 @@ app.post('/auth/login', async (req: Request, res: Response) => {
 app.post('/auth/register', async (req: Request, res: Response) => {
   try {
     // Forward to the actual API route
-    const response = await fetch(`http://localhost:${PORT}/api/auth/register`, {
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? `${req.protocol}://${req.get('host')}` 
+      : `http://localhost:${PORT}`;
+    
+    const response = await fetch(`${baseUrl}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -171,7 +179,11 @@ app.post('/auth/register', async (req: Request, res: Response) => {
 app.post('/auth/logout', async (req: Request, res: Response) => {
   try {
     // Forward to the actual API route
-    const response = await fetch(`http://localhost:${PORT}/api/auth/logout`, {
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? `${req.protocol}://${req.get('host')}` 
+      : `http://localhost:${PORT}`;
+    
+    const response = await fetch(`${baseUrl}/api/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -303,6 +315,18 @@ process.on('SIGTERM', async () => {
 if (process.env.NODE_ENV !== 'test') {
   const startServer = async () => {
     try {
+      console.log('🚀 Starting server...');
+      console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔧 Port: ${PORT}`);
+      
+      // Validate required environment variables
+      const requiredEnvVars = ['DB_HOST', 'DB_USERNAME', 'DB_PASSWORD', 'DB_NAME'];
+      for (const envVar of requiredEnvVars) {
+        if (!process.env[envVar]) {
+          throw new Error(`Missing required environment variable: ${envVar}`);
+        }
+      }
+      
       await connectDatabase();
       
       // Start message sync service (5 minute intervals)
@@ -315,6 +339,7 @@ if (process.env.NODE_ENV !== 'test') {
         console.log(`🔐 Login: http://localhost:${PORT}/login`);
         console.log(`✨ Register: http://localhost:${PORT}/register`);
         console.log(`🔄 Message sync service started`);
+        console.log(`💚 Health check: http://localhost:${PORT}/health`);
       });
     } catch (error) {
       console.error('❌ Failed to start server:', error);
