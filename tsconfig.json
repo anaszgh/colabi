@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": false,
@@ -12,17 +12,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
     "outDir": "./dist",
-    "rootDir": "./src",
     "sourceMap": true,
     "declaration": true,
     "removeComments": true,
@@ -33,26 +27,19 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    
-    // Essential for TypeORM decorators
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    
-    // Additional helpful options
     "strictPropertyInitialization": false,
     "useDefineForClassFields": false
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "ormconfig.ts"
+    "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
     "**/*.spec.ts"
-  ],
-  "ts-node": {
-  }
+  ]
 }

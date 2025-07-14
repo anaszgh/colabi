@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { AppDataSource } from '../config/database';
 import { Agent, AgentStatus } from '../entities/agent.entity';
 import { Account } from '../entities/account.entity';
-import { AzureAIService } from './azureAIService';
+import { AzureAIService } from './azure-ai.service';
 
 export interface CreateAgentData {
   name: string;

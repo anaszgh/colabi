@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../server';
 
 // Mock the Azure AI Service to avoid actual API calls during tests
-jest.mock('../services/azureAIService', () => {
+jest.mock('../services/azure-ai.service', () => {
   return {
     AzureAIService: jest.fn().mockImplementation(() => ({
       askQuestion: jest.fn().mockResolvedValue('Mocked AI response'),

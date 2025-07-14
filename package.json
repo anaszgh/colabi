@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "tsx watch --env-file=.env src/server.ts",
-    "build": "tsc -p . && copyfiles -u 1 'src/views/**/*' dist/ && copyfiles -u 1 'src/public/**/*' dist/ && cp package.json dist/",
+    "build": "npm run clean && tsc -p . && copyfiles -u 1 'src/views/**/*' dist/ && copyfiles -u 1 'src/public/**/*' dist/ && cp package.json dist/",
     "build:watch": "tsc --watch",
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit",

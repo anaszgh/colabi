@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
-import { AzureAIService } from './services/azureAIService';
+import { AzureAIService } from './services/azure-ai.service';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import { messageSyncService } from './services/messageSync.service';
 

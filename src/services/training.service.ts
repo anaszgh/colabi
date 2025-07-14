@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { AppDataSource } from '../config/database';
 import { TrainingSession, SessionStatus, MessageRole } from '../entities/training-session.entity';
 import { Agent } from '../entities/agent.entity';
-import { AzureAIService } from './azureAIService';
+import { AzureAIService } from './azure-ai.service';
 import { AgentService } from './agent.service';
 import { v4 as uuidv4 } from 'uuid';
 

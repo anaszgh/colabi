@@ -25,8 +25,8 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
   entities: [User, Account, Message, Template, Agent, TrainingSession],
-  migrations: ['src/migrations/*.ts'],
-  subscribers: ['src/subscribers/*.ts'],
+  migrations: ['./migrations/**/*{.ts,.js}'],
+  subscribers: ['./subscribers/**/*{.ts,.js}'],
   ssl: process.env.DB_HOST?.includes('azure.com') || process.env.NODE_ENV === 'production' 
     ? { rejectUnauthorized: false } 
     : false,

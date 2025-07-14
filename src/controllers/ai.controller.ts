@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { AzureAIService } from "@/services/azureAIService";
+import { AzureAIService } from "@/services/azure-ai.service";
 import { UserService } from '@/services/user.service';
 
 export class AIController{
