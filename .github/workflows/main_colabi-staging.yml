@@ -30,8 +30,9 @@ jobs:
 
       - name: Prepare package for deployment
         run: |
+          npm run clean
           # Create .deployment file to tell Azure how to start the app
-          echo -e "[config]\nPOST_DEPLOYMENT_ACTION=yarn install --production\nSCM_DO_BUILD_DURING_DEPLOYMENT=true" > .deployment
+          echo -e "[config]\nPOST_DEPLOYMENT_ACTION=npm install --production\nSCM_DO_BUILD_DURING_DEPLOYMENT=true" > .deployment
           # Navigate to deployment folder and create zip
           zip -r ./release.zip ./*
 

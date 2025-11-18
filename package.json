@@ -8,7 +8,7 @@
     "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "npm run clean && tsc -p . && copyfiles -u 1 'src/views/**/*' dist/ && copyfiles -u 1 'src/public/**/*' dist/ && cp package.json dist/",
     "build:watch": "tsc --watch",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist && rm -rf node_modules",
     "type-check": "tsc --noEmit",
     "test": "NODE_ENV=test jest",
     "test:watch": "jest --watch",
