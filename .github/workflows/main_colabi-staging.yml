@@ -20,21 +20,12 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Install dependencies and build
-        run: |
-          # Install ALL dependencies (including devDependencies for build)
-          npm install --legacy-peer-deps
-          
-          # Build the application
-          npm run build
-
       - name: Prepare package for deployment
         run: |
-          # Remove devDependencies to reduce package size
-          npm prune --production
-          
-          # Create zip for deployment (exclude unnecessary files)
-          zip -r ./release.zip ./* -x "*.git*" -x "*node_modules/.cache*" -x "*.DS_Store"
+          # Create .deployment file to tell Azure how to start the app
+          echo -e "[config]\nPOST_DEPLOYMENT_ACTION=npm ci --production\nSCM_DO_BUILD_DURING_DEPLOYMENT=true" > .deployment
+          # Navigate to deployment folder and create zip
+          zip -r ./release.zip ./*
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -75,4 +66,4 @@ jobs:
           app-name: 'colabi-staging'
           slot-name: 'Production'
           package: .
-          startup-command: 'node startup.js'
+          startup-command: 'node dist/server.js'
