@@ -8,7 +8,7 @@
     "dev": "tsx watch --env-file=.env src/server.ts",
     "build": "npm run clean && tsc -p . && copyfiles -u 1 'src/views/**/*' dist/ && copyfiles -u 1 'src/public/**/*' dist/ && cp package.json dist/",
     "build:watch": "tsc --watch",
-    "clean": "rm -rf dist && rm -rf node_modules",
+    "clean": "rm -rf dist",
     "type-check": "tsc --noEmit",
     "test": "NODE_ENV=test jest",
     "test:watch": "jest --watch",
@@ -49,10 +49,12 @@
     "openai": "^5.1.0",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.2",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.9",
