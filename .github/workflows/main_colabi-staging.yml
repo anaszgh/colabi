@@ -22,18 +22,19 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --legacy-peer-deps
+          # Install ALL dependencies (including devDependencies for build)
+          npm ci --legacy-peer-deps
+          
+          # Build the application
           npm run build
-        env:
-          NODE_ENV: production
 
       - name: Prepare package for deployment
         run: |
-          # Remove dev dependencies to reduce size (optional)
+          # Remove devDependencies to reduce package size
           npm prune --production
           
-          # Create zip for deployment
-          zip -r ./release.zip ./* -x "*.git*" -x "*node_modules/.cache*"
+          # Create zip for deployment (exclude unnecessary files)
+          zip -r ./release.zip ./* -x "*.git*" -x "*node_modules/.cache*" -x "*.DS_Store"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
